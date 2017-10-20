@@ -1,0 +1,14 @@
+{
+    "queries": {
+        "validations": [
+            "delete { ?collection ?a ?b. } where { ?collection a mu:validationResultCollection ; ?a ?b.}",
+            "delete { ?result ?a ?b. } where { ?result a mu:validationResult; ?a ?b. }"
+        ],
+        "creation": [
+            "delete{?a ?b ?concept. ?concept ?a1 ?a2 } where{ ?concept a <http://www.w3.org/2004/02/skos/core#Concept>; <http://mu.semte.ch/vocabularies/core/isUnderCreation> 'true'; ?a1 ?a2. optional {?a ?b ?concept}}"
+        ],
+       "failed-publication-graph": [
+           "DELETE{ GRAPH ?publication { ?s ?p ?o .}}{ { SELECT ?publication WHERE { GRAPH <http://mu.semte.ch/application> {?publication a <http://rdfs.org/ns/void#Dataset>. ?publication <http://dbpedia.org/ontology/status> 'failed'.}}} GRAPH ?publication{ ?s ?p ?o .}}"
+       ]
+    }
+}

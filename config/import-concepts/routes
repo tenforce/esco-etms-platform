@@ -1,0 +1,9 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# An example controller showing a sample home page
+POST    /import/taxonomy            controllers.ImportConcepts.create
+POST    /transform/taxonomy         controllers.TransformConcepts.create
+POST    /import/mapping             controllers.ImportMapping.create
+POST    /transform/mapping          controllers.TransformToMapping.create

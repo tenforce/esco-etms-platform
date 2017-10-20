@@ -1,0 +1,6 @@
+{
+    "types": {
+        "occupation": "http://data.europa.eu/esco/model#Occupation",
+        "skill": "http://data.europa.eu/esco/model#Skill"
+    }
+}

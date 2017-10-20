@@ -1,0 +1,5 @@
+<http://data.europa.eu/esco/label-role/female> <http://mu.semte.ch/vocabularies/core/uuid> "56d97e8cc09bad059c3d2ffe" .
+<http://data.europa.eu/esco/label-role/male> <http://mu.semte.ch/vocabularies/core/uuid> "56d97e8cc09bad059c3d2fff" .
+<http://data.europa.eu/esco/label-role/neutral> <http://mu.semte.ch/vocabularies/core/uuid> "56d97e8cc09bad059c3d3000" .
+<http://data.europa.eu/esco/label-role/standard-female> <http://mu.semte.ch/vocabularies/core/uuid> "56d97e8cc09bad059c3d3001" .
+<http://data.europa.eu/esco/label-role/standard-male> <http://mu.semte.ch/vocabularies/core/uuid> "56d97e8cc09bad059c3d3002" .

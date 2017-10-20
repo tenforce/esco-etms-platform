@@ -1,0 +1,214 @@
+---
+:prefixes:
+  :esco: http://data.europa.eu/esco/model#
+  :skos: http://www.w3.org/2004/02/skos/core#
+  :skosxl: http://www.w3.org/2008/05/skos-xl#
+  :dcterms: http://purl.org/dc/terms/
+  :isothes: http://purl.org/iso25964/skos-thes#
+  :owl: http://www.w3.org/2002/07/owl#
+  :xsd: http://www.w3.org/2001/XMLSchema#
+  :etms: http://sem.tenforce.com/vocabularies/etms/  
+:transformations:
+ # specify transformations as queries
+ # these run until the ask #{until} query returns false
+  :do_until:
+    :occupation-concepts-should-be-part-of-member-scheme:
+      :query: |
+            INSERT {
+              ?resource skos:inScheme <http://data.europa.eu/esco/concept-scheme/member-occupations>
+            }
+            WHERE {
+               {
+               SELECT ?resource
+               WHERE {
+                 ?resource a esco:Occupation, esco:MemberConcept
+                 FILTER (NOT EXISTS { ?resource skos:inScheme <http://data.europa.eu/esco/concept-scheme/member-occupations> })
+               } LIMIT 5000 }
+              ?resource a esco:Occupation
+            }
+      :until: |
+               ?resource a esco:Occupation, esco:MemberConcept
+               FILTER (NOT EXISTS { ?resource skos:inScheme <http://data.europa.eu/esco/concept-scheme/member-occupations> })
+    :skill-concepts-should-be-part-of-member-scheme:
+      :query: |
+            INSERT {
+              ?resource skos:inScheme <http://data.europa.eu/esco/concept-scheme/member-skills>
+            }
+            WHERE {
+              {
+              SELECT ?resource
+              WHERE {
+               ?resource a esco:Skill, esco:MemberConcept
+               FILTER (NOT EXISTS { ?resource skos:inScheme <http://data.europa.eu/esco/concept-scheme/member-skills> })
+              } LIMIT 5000}
+            ?resource a esco:Skill
+            }
+      :until: |
+               ?resource a esco:Skill, esco:MemberConcept
+               FILTER (NOT EXISTS { ?resource skos:inScheme <http://data.europa.eu/esco/concept-scheme/member-skills> })
+    :no-broader-should-be-top-concept:
+          :query: |
+                INSERT {
+                  ?resource skos:topConceptOf ?scheme
+                }
+                WHERE {
+                   {SELECT ?resource ?scheme WHERE
+                    {
+                      ?resource skos:inScheme ?scheme.
+                      FILTER (NOT EXISTS { ?resource skos:topConceptOf ?scheme})
+                      FILTER (NOT EXISTS
+                      {
+                        ?resource skos:broader ?broader.
+                        ?broader skos:inScheme ?scheme
+                      })
+                    }
+                      LIMIT 5000}
+                   ?resource skos:inScheme ?scheme.
+                }
+          :until: |
+                   ?resource skos:inScheme ?scheme.
+                   FILTER (NOT EXISTS { ?resource skos:broader ?broader. ?broader skos:inScheme ?scheme } )
+                   FILTER (NOT EXISTS { ?resource skos:topConceptOf ?scheme } )
+    :relationship-to-assoc-object:
+      #TODO risky one
+      :query: |
+        DELETE {
+          ?resource a esco:Relationship;
+            esco:refersConcept ?concept_a;
+            esco:isRelationshipFor ?concept_b;
+            esco:hasRelationshipType ?type.
+        }
+        INSERT {
+          ?resource a esco:AssociationObject;
+            esco:target ?concept_a;
+            esco:isAssociationFor ?concept_b;
+            dcterms:type ?type;
+            esco:targetFramework ?inscheme_a.
+        }
+        WHERE {
+          { SELECT ?resource WHERE {
+            ?resource a esco:Relationship;
+                         esco:refersConcept ?concept_a;
+                         esco:isRelationshipFor ?concept_b;
+                         esco:hasRelationshipType ?type.
+                       ?concept_a skos:inScheme ?inscheme_a.
+          } LIMIT 5000}
+          ?resource a esco:Relationship;
+            esco:refersConcept ?concept_a;
+            esco:isRelationshipFor ?concept_b;
+            esco:hasRelationshipType ?type.
+          ?concept_a skos:inScheme ?inscheme_a.
+        }
+      :until: |
+           ?resource a esco:Relationship;
+             esco:refersConcept ?concept_a;
+             esco:isRelationshipFor ?concept_b;
+             esco:hasRelationshipType ?type.
+           ?concept_a skos:inScheme ?inscheme_a.
+    :deprecated-concept-status-from-etms-status:
+      :query: |
+        DELETE {
+          ?resource etms:hasPublicationStatus ?status.
+        }
+        INSERT {
+          ?resource isothes:status "deprecated".
+          ?resource owl:deprecated "true"^^xsd:boolean.
+        }
+        WHERE {
+          ?resource a skos:Concept.
+          ?resource  etms:hasPublicationStatus ?status.
+          { SELECT ?resource WHERE {
+          ?resource  etms:hasPublicationStatus ?status.
+           FILTER(?status in (<http://sem.tenforce.com/vocabularies/etms/publicationStatusDeprecated>, <http://sem.tenforce.com/vocabularies/etms/publicationStatusReadyForDeprecation>))
+          } LIMIT 5000
+          }
+        }
+      :until: |
+          ?resource a skos:Concept;
+            etms:hasPublicationStatus ?status.
+          FILTER(?status in (<http://sem.tenforce.com/vocabularies/etms/publicationStatusDeprecated>, <http://sem.tenforce.com/vocabularies/etms/publicationStatusReadyForDeprecation>))
+    :released-concept-status-from-etms-status:
+      :query: |
+        DELETE {
+          ?resource etms:hasPublicationStatus ?status.
+        }
+        INSERT {
+          ?resource isothes:status "released".
+        }
+        WHERE {
+          ?resource a skos:Concept.
+          ?resource  etms:hasPublicationStatus ?status.
+          { SELECT ?resource
+            WHERE {
+            ?resource  etms:hasPublicationStatus ?status.
+            FILTER(?status in (<http://sem.tenforce.com/vocabularies/etms/publicationStatusPublished>, <http://sem.tenforce.com/vocabularies/etms/publicationStatusReady>))
+          } LIMIT 5000 }
+        }
+      :until: |
+          ?resource a skos:Concept;
+            etms:hasPublicationStatus ?status.
+          FILTER(?status in (<http://sem.tenforce.com/vocabularies/etms/publicationStatusPublished>, <http://sem.tenforce.com/vocabularies/etms/publicationStatusReady>))
+    :remove_broaders_that_are_not_included:
+      :query: |
+        DELETE {
+          ?resource skos:broader ?broader
+        }
+        WHERE {
+          ?resource skos:broader ?broader.
+          {SELECT ?broader WHERE { ?resource skos:broader ?broader. FILTER(NOT EXISTS {?broader ?p ?o })} LIMIT 5000}
+        }
+      :until: |
+        ?resource skos:broader ?broader. FILTER(NOT EXISTS {?broader ?p ?o })
+    :remove_inScheme_that_are_not_included:
+      :query: |
+        DELETE {
+          ?resource skos:inScheme ?scheme
+        }
+        WHERE {
+          ?resource skos:inScheme ?scheme.
+          {SELECT ?scheme WHERE { ?resource skos:inScheme ?scheme. FILTER(NOT EXISTS {?scheme ?p ?o })} LIMIT 5000}
+        }
+      :until: |
+        ?resource skos:inScheme ?scheme. FILTER(NOT EXISTS {?scheme ?p ?o })
+    :remove_topConceptOf_that_are_not_included:
+      :query: |
+        DELETE {
+          ?resource skos:topConceptOf ?scheme
+        }
+        WHERE {
+          ?resource skos:topConceptOf ?scheme.
+          {SELECT ?scheme WHERE { ?resource skos:topConceptOf ?scheme. FILTER(NOT EXISTS {?scheme ?p ?o })} LIMIT 5000}
+        }
+      :until: |
+        ?resource skos:topConceptOf ?scheme. FILTER(NOT EXISTS {?scheme ?p ?o })
+  :node_literal:
+  # specify the class and property to convert to a NodeLiteral
+    :pillar-descriptions:
+      :class: "skos:Concept"
+      :property: "dcterms:description"
+    :pillar-definitions:
+      :class: "skos:Concept"
+      :property: "skos:definition"
+    :pillar-scopenotes:
+      :class: "skos:Concept"
+      :property: "skos:scopeNote"
+    :pillar-changenotes:
+      :class: "skos:Concept"
+      :property: "skos:changeNote"
+    :pillar-historynotes:
+      :class: "skos:Concept"
+      :property: "skos:historyNote"
+  :inverse:
+  # specify the property and its inverse, the inverse will be added to the dump
+    :broader-to-narrower:
+      :property: "skos:broader"
+      :inverse: "skos:narrower"
+    :topconceptof-hastopconcept:
+      :property: "skos:topConceptOf"
+      :inverse: "skos:hasTopConcept"
+    :association-for-to-has-association:
+      :property: "esco:isAssociationFor"
+      :inverse: "esco:hasAssociation"
+    :target-to-has-association:
+      :property: "esco:target"
+      :inverse: "esco:hasAssociation"

@@ -1,0 +1,7 @@
+<http://sem.tenforce.com/vocabularies/etms/publicationStatusDeleted> <http://mu.semte.ch/vocabularies/core/uuid> "1eb565b6-ca4d-4bbe-9929-1cc5a510a7f3" .
+<http://sem.tenforce.com/vocabularies/etms/publicationStatusDeprecated> <http://mu.semte.ch/vocabularies/core/uuid> "85faab40-2786-45ba-8438-bf379c365be8" .
+<http://sem.tenforce.com/vocabularies/etms/publicationStatusDraft> <http://mu.semte.ch/vocabularies/core/uuid> "a2b950aa-c337-46f5-af8c-dbb785f5b19e" .
+<http://sem.tenforce.com/vocabularies/etms/publicationStatusEdited> <http://mu.semte.ch/vocabularies/core/uuid> "6df43dbb-963b-4d2f-8502-e1b6e17f18d2" .
+<http://sem.tenforce.com/vocabularies/etms/publicationStatusPublished> <http://mu.semte.ch/vocabularies/core/uuid> "4094b5fa-1841-41e4-93fe-92e72b68e2ef" .
+<http://sem.tenforce.com/vocabularies/etms/publicationStatusReady> <http://mu.semte.ch/vocabularies/core/uuid> "3d604168-fa1f-4665-9a9c-f8a112bf24ac" .
+<http://sem.tenforce.com/vocabularies/etms/publicationStatusReadyForDeprecation> <http://mu.semte.ch/vocabularies/core/uuid> "26b3710c-22fe-4457-bbb7-2c64ae19f8dc" .

@@ -1,0 +1,171 @@
+# NOTE: this is the production Docker Compose configuration file. DO NOT put
+#       any stuff that must be available only in development. Please use the
+#       file docker-compose.override.yml instead.
+version: "2.1"
+services:
+  frontend:
+    restart: always
+    image: semtech/mu-nginx-spa-proxy
+    volumes:
+      - frontend-dist:/app
+      - ./config/nginx:/etc/nginx/conf.d/
+    links:
+      - identifier:backend
+    ports:
+      - 4567:80
+  frontend-dist:
+    build: ./esco-etms-frontend
+    volumes:
+      - frontend-dist:/app/dist
+    command: "ember build --dev"
+  identifier:
+    image: semtech/mu-identifier:1.3.0
+    links:
+      - dispatcher:dispatcher    
+  dispatcher:
+    image: semtech/mu-dispatcher:1.0.1
+    links:
+      - resource:resource
+      - login:login
+      - hierarchyapi:hierarchyapi
+      - kpisapi:kpisapi
+      - validation:validation
+      - indexer:indexer
+      - cleanup:cleanup
+      - publisher:publisher
+      - filediff:filediff
+    volumes:
+      - ./config:/config
+
+  scheduler:
+    build: ./esco-core-scheduler
+    links:
+      - dispatcher:dispatcher
+    volumes:
+      - ./config/scheduler:/config
+    environment:
+      BASE_URL: "http://dispatcher"
+
+  db:
+    image: tenforce/virtuoso:1.3.0-virtuoso7.2.2
+    environment:
+      SPARQL_UPDATE: "true"
+      DEFAULT_GRAPH: "http://mu.semte.ch/application"
+    volumes:
+      - ./data/virtuoso:/var/lib/virtuoso/db
+    ports:
+      - "8890:8890"
+
+  delta:
+    image: semtech/mu-delta-service:beta-0.9
+    volumes:
+      - ./config/delta-service:/config
+    environment:
+      CONFIGFILE: "/config/config.properties"
+      SUBSCRIBERSFILE: "/config/subscribers.json"
+    links:
+      - db:db
+
+  solr:
+    build: ./esco-core-solr
+    volumes:
+      - /data/solr_home
+    command: mvn jetty:run -Dsolr.port=8080
+
+  indexer:
+    build: ./esco-core-delta-based-indexer
+    ports:
+      - "8894:8080"
+    links:
+      - solr:solr
+      - db:database
+    command: mvn spring-boot:run -D-Dsparql.namespace=http://mu.semte.ch/application -Dsparql.virtuoso.endpoint=http://database:8890/sparql/ -Dspring.data.solr.host=http://solr:8080/solr/collection1/ -Dqueues.enable=true
+
+  resource:
+    image: semtech/mu-cache:0.4.0
+    links:
+      - resourcebackend:backend
+    environment:
+      CACHE_BACKEND: "http://backend"
+
+  resourcebackend:
+    image: semtech/mu-cl-resources:1.15.0
+    links:
+      - db:database
+    volumes:
+      - ./config/resources:/config
+    environment:
+      BOOT: mu-cl-resources
+
+  hierarchyapi:
+    build: ./esco-core-hierarchy
+    links:
+      - db:database
+    environment:
+      HIER_CACHE_TIME: 0.01
+
+  login:
+    image: semtech/mu-login-service:2.7.0
+    links:
+      - db:database
+    environment:
+      MU_APPLICATION_GRAPH: "http://mu.semte.ch/application"
+      MU_APPLICATION_SALT: "KteCAqj7bAjEavWhUhUHL4oPFc3ePvVVMKgHKoh7nTqAvhRuatxoTkpnePrLPiWk"
+
+  kpisapi:
+    build: ./esco-core-kpis
+    links:
+      - db:database
+
+  cleanup:
+    build: ./esco-core-cleanup
+    volumes:
+      - "./config/cleanup:/config"
+    links:
+      - db:database
+
+  narrower-handler:
+    build: ./esco-etms-narrower-handler
+    links:
+      - db:database
+
+  publisher:
+    build: ./esco-etms-publisher
+    links:
+      - db:database
+    environment:
+      MU_SPARQL_TIMEOUT: "1800"
+      PUBLISHER_EXPORT_PATH: "/config/exports"
+    volumes:
+      - "./config/publisher:/config"
+  etms-dcat:
+    build: ./esco-etms-dcat
+    links:
+      - db:database
+    environment:
+      # set to public uri of the etms platform, is used to generate download uri
+      ETMS_BASE_URL: "http://etms.escoportal.eu/esco/etms"
+  validation:
+    build: ./esco-core-validation
+    links:
+      - db:database
+    environment:
+      MU_SPARQL_TIMEOUT: "600"
+    volumes:
+      - "./config/validation:/config"
+
+  filediff:
+    build: ./esco-etms-file-diff
+    links:
+      - db:database
+    environment:
+      MU_SPARQL_TIMEOUT: "1800"
+      PUBLISHER_EXPORT_PATH: "/config/exports"
+      DIFFERENCE_FILE_EXPORT_PATH: "/difference-files"
+    volumes:
+      - "./config/publisher:/config"
+      - "./config/filediff:/difference-files"
+        
+
+volumes:
+  frontend-dist:

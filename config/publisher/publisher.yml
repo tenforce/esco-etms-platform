@@ -1,0 +1,218 @@
+---
+:prefixes:
+  :esco: http://data.europa.eu/esco/model#
+  :skos: http://www.w3.org/2004/02/skos/core#
+  :skosxl: http://www.w3.org/2008/05/skos-xl#
+  :dcterms: http://purl.org/dc/terms/
+  :isothes: http://purl.org/iso25964/skos-thes#
+  :etms: http://sem.tenforce.com/vocabularies/etms/
+:languages:
+#  - fi
+#  - sk
+#  - da
+#  - nl
+#  - hu
+#  - ga
+#  - sl
+#  - lt
+#  - no
+#  - cs
+#  - pl
+#  - hr
+#  - lv
+#  - pt
+#  - el
+#  - es
+#  - mt
+#  - et
+#  - ro
+  - en
+#  - fr
+#  - is
+#  - de
+#  - bg
+#  - it
+#  - sv
+:types:
+  # specify types and their required/optional properties
+  # note rdf:type is always exported
+  :esco:Occupation:
+    :required_properties:
+    - skos:inScheme
+    - skosxl:prefLabel
+    - dcterms:description
+    - etms:hasPublicationStatus
+    :optional_properties:
+    # note optionals are slow, so add as few as possible
+    - skos:broader
+    - skos:topConceptOf
+    - skosxl:altLabel
+    - skosxl:hiddenLabel
+    - skos:definition
+    - skos:scopeNote
+    - esco:relevantUrl
+    - esco:regulatedProfessionNote
+    - dcterms:subject
+    - skos:changeNote
+    - skos:historyNote
+    - dcterms:issued
+    - dcterms:modified
+    - dcterms:replaces
+    - dcterms:isReplacedBy
+    - dcterms:rightsHolder
+    - dcterms:creator
+    - esco:referenceLanguage  # TODO this property is required, but not always present in etms
+    - esco:memberOfIscoGroup  # TODO this property is required, but not always present in etms
+#    - isothes:status         # this property is generated
+    - dcterms:publisher       # TODO this property is required, but not always present in etms
+    :additional_filter: |
+          ?resource etms:hasPublicationStatus ?status.
+          FILTER (?status in (
+          <http://sem.tenforce.com/vocabularies/etms/publicationStatusPublished>,
+          <http://sem.tenforce.com/vocabularies/etms/publicationStatusReady>,
+          <http://sem.tenforce.com/vocabularies/etms/publicationStatusDeprecated>,
+          <http://sem.tenforce.com/vocabularies/etms/publicationStatusReadyForDeprecation>))
+  :esco:Skill:
+    :required_properties:
+    - skos:inScheme
+    - skosxl:prefLabel
+    - dcterms:description
+    - etms:hasPublicationStatus
+    - esco:skillType
+    :optional_properties:
+    - esco:skillReuseLevel
+    - skos:broader
+    - skos:topConceptOf
+    - skosxl:altLabel
+    - skosxl:hiddenLabel
+    - skos:definition
+    - skos:scopeNote
+    - esco:relevantUrl
+    - dcterms:subject
+    - skos:changeNote
+    - skos:historyNote
+    - dcterms:issued
+    - dcterms:modified
+    - dcterms:replaces
+    - dcterms:isReplacedBy
+    - dcterms:rightsHolder
+    - dcterms:creator
+    - esco:referenceLanguage  # TODO this property is required, but not always present in etms
+#    - isothes:status         # TODO this property is required, but not always present in etms
+    - dcterms:publisher       # TODO this property is required, but not always present in etms
+    :additional_filter: |
+          ?resource etms:hasPublicationStatus ?status.
+          FILTER (?status in (
+          <http://sem.tenforce.com/vocabularies/etms/publicationStatusPublished>,
+          <http://sem.tenforce.com/vocabularies/etms/publicationStatusReady>,
+          <http://sem.tenforce.com/vocabularies/etms/publicationStatusDeprecated>,
+          <http://sem.tenforce.com/vocabularies/etms/publicationStatusReadyForDeprecation>))
+  :esco:Relationship:
+    :required_properties:
+    - esco:isRelationshipFor
+    - esco:refersConcept
+    - esco:hasRelationshipType
+    :optional_properties: []
+    :additional_filter: |
+          ?resource esco:isRelationshipFor ?for;
+                    esco:refersConcept ?to.
+          ?for etms:hasPublicationStatus ?status.
+          ?to etms:hasPublicationStatus ?status2.
+          FILTER (?status in (
+          <http://sem.tenforce.com/vocabularies/etms/publicationStatusPublished>,
+          <http://sem.tenforce.com/vocabularies/etms/publicationStatusReady>,
+          <http://sem.tenforce.com/vocabularies/etms/publicationStatusDeprecated>,
+          <http://sem.tenforce.com/vocabularies/etms/publicationStatusReadyForDeprecation>))
+          FILTER (?status2 in (
+          <http://sem.tenforce.com/vocabularies/etms/publicationStatusPublished>,
+          <http://sem.tenforce.com/vocabularies/etms/publicationStatusReady>,
+          <http://sem.tenforce.com/vocabularies/etms/publicationStatusDeprecated>,
+          <http://sem.tenforce.com/vocabularies/etms/publicationStatusReadyForDeprecation>))
+  :esco:Structure:
+    :required_properties:
+    - esco:codeList
+    - esco:codedProperty
+    - esco:structureFor
+    :optional_properties:
+    - skos:prefLabel
+    - dcterms:description
+    :additional_filter: |
+      FILTER ( ?resource in (
+        <http://data.europa.eu/esco/structure/skills-transversal>,
+        <http://data.europa.eu/esco/structure/skills-language-groups> ,
+        <http://data.europa.eu/esco/structure/skills-ict-groups> ,
+        <http://data.europa.eu/esco/structure/occupations-isco> 
+      ))
+  :skos:Concept:
+      :required_properties:
+      - skosxl:prefLabel
+      - skos:inScheme
+      :optional_properties:
+#        - etms:hasPublicationStatus
+        - skos:topConceptOf
+        - skosxl:altLabel
+        - skosxl:hiddenLabel
+        - skos:definition
+        - dcterms:description
+        - skos:scopeNote
+        - esco:relevantUrl
+        - skos:broader
+        - skos:notation
+        - dcterms:subject
+        - skos:changeNote
+        - skos:historyNote
+        - dcterms:issued
+        - dcterms:modified
+        - dcterms:replaces
+        - dcterms:isReplacedBy
+        - dcterms:rightsHolder
+        - dcterms:creator
+        - esco:referenceLanguage
+#        - isothes:status         # this property is generated
+        - dcterms:publisher       # TODO this property is required, but not always present in etms
+      :additional_filter: |
+        FILTER NOT EXISTS { ?resource a esco:MemberConcept . }
+        {
+        ?resource skos:inScheme ?scheme .
+        FILTER (?scheme in (
+          <http://data.europa.eu/esco/concept-scheme/isco>,
+          <http://data.europa.eu/esco/concept-scheme/skill-transversal-groups>,
+          <http://data.europa.eu/esco/concept-scheme/skill-language-groups>,
+          <http://data.europa.eu/esco/concept-scheme/skill-ict-groups>,
+          <http://data.europa.eu/esco/concept-scheme/skill-competence-type>,
+          <http://data.europa.eu/esco/concept-scheme/relationship-types>,
+          <http://data.europa.eu/esco/concept-scheme/skill-reuse-level>,
+          <http://data.europa.eu/esco/concept-scheme/regulated-professions>,
+          <http://data.europa.eu/esco/concept-scheme/label-role>))
+        }
+        UNION
+        {
+          # for some reason, virtuoso doesn't enjoy just a FILTER in an UNION
+          ?resource skos:inScheme ?scheme .
+          FILTER(?resource IN(<http://data.europa.eu/esco/skill/7ee746cb-fded-47f5-9652-19ebebbce51b>, <http://data.europa.eu/esco/skill/58095196-d766-4a5c-b16c-d941489f8e66>))
+        }
+  :skos:ConceptScheme:
+    :required_properties:
+    - skos:prefLabel
+    :optional_properties:
+    - dcterms:title
+    - dcterms:description
+    - skos:scopeNote
+    - skos:editorialNote
+    - skos:changeNote
+    - skos:historyNote
+    :additional_filter: |
+            FILTER (?resource in (
+            <http://data.europa.eu/esco/concept-scheme/isco>,
+            <http://data.europa.eu/esco/concept-scheme/skill-transversal-groups>,
+            <http://data.europa.eu/esco/concept-scheme/skills>,
+            <http://data.europa.eu/esco/concept-scheme/member-skills>,
+            <http://data.europa.eu/esco/concept-scheme/occupations>,
+            <http://data.europa.eu/esco/concept-scheme/member-occupations>,
+            <http://data.europa.eu/esco/concept-scheme/skill-ict-groups>,
+            <http://data.europa.eu/esco/concept-scheme/skill-language-groups>,
+            <http://data.europa.eu/esco/concept-scheme/skill-competence-type>,
+            <http://data.europa.eu/esco/concept-scheme/relationship-types>,
+            <http://data.europa.eu/esco/concept-scheme/skill-reuse-level>,
+            <http://data.europa.eu/esco/concept-scheme/regulated-professions>,
+            <http://data.europa.eu/esco/concept-scheme/label-role>))

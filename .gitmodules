@@ -1,0 +1,36 @@
+[submodule "esco-core-cleanup"]
+	path = esco-core-cleanup
+	url = https://github.com/tenforce/esco-core-cleanup.git
+[submodule "esco-etms-frontend"]
+	path = esco-etms-frontend
+	url = https://github.com/tenforce/esco-etms-frontend.git
+[submodule "esco-core-delta-based-indexer"]
+	path = esco-core-delta-based-indexer
+	url = https://github.com/tenforce/esco-core-delta-based-indexer.git
+[submodule "esco-etms-dcat"]
+	path = esco-etms-dcat
+	url = https://github.com/tenforce/esco-etms-dcat.git
+[submodule "esco-etms-file-diff"]
+	path = esco-etms-file-diff
+	url = https://github.com/tenforce/esco-etms-file-diff.git
+[submodule "esco-core-kpis"]
+	path = esco-core-kpis
+	url = https://github.com/tenforce/esco-core-kpis.git
+[submodule "esco-core-scheduler"]
+	path = esco-core-scheduler
+	url = https://github.com/tenforce/esco-core-scheduler.git
+[submodule "esco-etms-publisher"]
+	path = esco-etms-publisher
+	url = https://github.com/tenforce/esco-etms-publisher.git
+[submodule "esco-core-solr"]
+	path = esco-core-solr
+	url = https://github.com/tenforce/esco-core-solr.git
+[submodule "esco-core-validation"]
+	path = esco-core-validation
+	url = https://github.com/tenforce/esco-core-validation.git
+[submodule "esco-etms-narrower-handler"]
+	path = esco-etms-narrower-handler
+	url = https://github.com/tenforce/esco-etms-narrower-handler.git
+[submodule "esco-core-hierarchy"]
+	path = esco-core-hierarchy
+	url = https://github.com/tenforce/esco-core-hierarchy.git

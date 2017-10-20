@@ -1,0 +1,282 @@
+{
+    "validations": {
+        "publication": {
+            "name": "Prepublication check",
+            "description": "A concept can only be published if ALL of his broader member concepts are in following state: 'published', 'ready for publication' or 'edited'. If this is not the case, the concept with a broader concept in an incorrect status should be displayed.",
+            "show": ["etms"],
+            "types": [
+                "occupation", "skill"
+            ],
+            "parameters": [
+                "uuid", "preflabel", "literalForm"
+            ],
+            "query": "?concept a <change_the_type>;  mu:uuid ?uuid; <http://sem.tenforce.com/vocabularies/etms/hasPublicationStatus> ?status; skos:broader ?broader;  skosxl:prefLabel ?conceptlabel. ?conceptlabel skosxl:literalForm ?preflabel. filter(lang(?preflabel) = 'en')  filter ( ?status in (<http://sem.tenforce.com/vocabularies/etms/publicationStatusReady>, <http://sem.tenforce.com/vocabularies/etms/publicationStatusPublished>, <http://sem.tenforce.com/vocabularies/etms/publicationStatusEdited>)) ?broader <http://sem.tenforce.com/vocabularies/etms/hasPublicationStatus> ?broaderStatus; skosxl:prefLabel ?conceptlabel2. ?conceptlabel2 skosxl:literalForm ?literalForm.  filter(lang(?literalForm) = 'en')  filter ( ?broaderStatus in (<http://sem.tenforce.com/vocabularies/etms/publicationStatusDeleted>, <http://sem.tenforce.com/vocabularies/etms/publicationStatusDeprecated>, <http://sem.tenforce.com/vocabularies/etms/publicationStatusReadyForDeprecation>, <http://sem.tenforce.com/vocabularies/etms/publicationStatusDraft>))"
+        },
+        "no-prefterm-occupation-skill": {
+            "name": "No pref term in English",
+            "description": "Every occupation, knowledge and skill should have a preferred term in English.",
+            "show": ["etms"],
+            "types": [
+                "occupation", "skill"
+            ],
+            "parameters": [
+                "uuid"
+            ],
+            "query": "?concept mu:uuid ?uuid ; a <change_the_type> . FILTER NOT EXISTS { ?concept skosxl:prefLabel ?conceptlabel. ?conceptlabel skosxl:literalForm ?label . FILTER(lang(?label) = 'en')  }  ?concept mu:isUnderCreation 'false'. "
+        },
+        "multiple-concepts-same-prefterm": {
+          "name": "Multiple concepts with same prefterm",
+          "description": "Preferred terms should be unique.",
+          "show": [
+            "etms"
+          ],
+          "types": [
+            "occupation", "skill"
+          ],
+          "parameters": [
+            "uuid", "preflabel", "duplicateIn"
+          ],
+          "query": "{ SELECT DISTINCT ?uuid  ?preflabel  ?duplicateIn  where { ?concept1 a <change_the_type>. ?concept2 a <change_the_type>. FILTER(STR(?concept1) != STR(?concept2)) ?concept1 skosxl:prefLabel ?p1 . ?p1 skosxl:literalForm ?preflabel . filter(lang(?preflabel) = 'en') FILTER(STRLEN(?preflabel) > 0)  ?concept2 skosxl:prefLabel ?p2 . ?p2 skosxl:literalForm ?preflabel . ?concept1 mu:uuid ?uuid . ?concept2 mu:uuid ?duplicateIn .  } }"
+        },
+        "prefterm-no-gender-occupation-skill": {
+            "name": "Pref term without gender",
+            "description": "For occupations: Prefterms should have genders, at least neutral.",
+            "show": ["etms"],
+            "types": [
+                "occupation"
+            ],
+            "parameters": [
+                "uuid", "preflabel"
+            ],
+            "query": "?concept skosxl:prefLabel ?o ;  mu:uuid ?uuid ; a <change_the_type> . ?o skosxl:literalForm ?preflabel. filter(lang(?preflabel) = 'en')  FILTER NOT EXISTS { ?o esco:hasLabelRole ?role}  ?concept mu:isUnderCreation 'false'."
+        },
+        "prefterm-n-occupation-skill": {
+            "name": "Pref term missing neutral",
+            "description": "For occupations: Finds every preferred terms that does not have the neutral gender role.",
+            "show": ["etms"],
+            "types": [
+                "occupation"
+            ],
+            "parameters": [
+                "uuid", "preflabel"
+            ],
+            "query": "?concept skosxl:prefLabel ?label ; a <change_the_type> ; mu:uuid ?uuid . ?label skosxl:literalForm ?preflabel.filter(lang(?preflabel) = 'en') filter (not exists {?label esco:hasLabelRole <http://data.europa.eu/esco/label-role/neutral>})  ?concept mu:isUnderCreation 'false'."
+        },
+        "similar-labels-on-skill-occupation": {
+            "name": "Duplicated terms in one concept",
+            "description": "For occupations, knowledges and skills: The same term should not appear more than once in one concept.",
+            "show": ["etms"],
+            "types": [
+                "occupation", "skill"
+            ],
+            "parameters": [
+                "uuid", "preflabel", "literalForm"
+            ],
+            "query": "?concept a <change_the_type>; mu:uuid ?uuid; ?haslabel1 ?label1; ?haslabel2 ?label2; skosxl:prefLabel ?conceptlabel. ?conceptlabel skosxl:literalForm ?preflabel. filter(lang(?preflabel) = 'en') ?label1 a skosxl:Label; skosxl:literalForm ?literalForm. ?label2 a skosxl:Label; skosxl:literalForm ?literalForm. filter (?label1 != ?label2 && lang(?literalForm) = 'en') ?concept mu:isUnderCreation 'false'."
+        },
+        "without-skills-skill-occupation": {
+            "name": "Without skills/knowledge",
+            "description": "Skills, knowledges and occupations without essential/optional skills/knowledges.",
+            "show": ["etms"],
+            "types": [
+                "occupation", "skill"
+            ],
+            "parameters": [
+                "uuid", "preflabel"
+            ],
+            "query": "?concept a <change_the_type>; mu:uuid ?uuid; skosxl:prefLabel ?conceptlabel. ?conceptlabel skosxl:literalForm ?preflabel. filter(lang(?preflabel) = 'en') . FILTER NOT EXISTS {?relation a esco:Relationship; ?hasConcept ?concept; ?hasSkill ?skill. ?skill a esco:Skill. }  ?concept mu:isUnderCreation 'false'."
+        },
+        "skill-duplicated-occupation-skill": {
+            "name": "Skill linked twice",
+            "description": "Occupations, knowledges and skills, that have the same skill linked twice.",
+            "show": ["etms"],
+            "types": [
+                "occupation", "skill"
+            ],
+            "parameters": [
+                "uuid", "preflabel", "literalForm"
+            ],
+            "query": "{ select ?uuid ?skill (COUNT(?relation) as ?relations) WHERE { ?occupation a <change_the_type>; mu:uuid ?uuid; mu:isUnderCreation 'false'. ?skill a esco:Skill; esco:skillType <http://data.europa.eu/esco/skill-type/skill> .     { {  ?relation a esco:Relationship; esco:isRelationshipFor ?occupation; esco:refersConcept ?skill. } UNION { ?relation a esco:Relationship; esco:refersConcept ?occupation; esco:isRelationshipFor ?skill. } } } GROUP BY ?uuid ?skill HAVING(COUNT(?relation) > 1) } ?occupation a <http://data.europa.eu/esco/model#Occupation>; mu:uuid ?uuid; skosxl:prefLabel ?conceptlabel1. ?conceptlabel1 skosxl:literalForm ?preflabel. ?skill a esco:Skill; esco:skillType <http://data.europa.eu/esco/skill-type/skill> ;  skosxl:prefLabel ?conceptlabel. ?conceptlabel skosxl:literalForm ?literalForm. filter(lang(?literalForm) = 'en') filter(lang(?preflabel) = 'en')"
+        },
+        "knowledges-duplicated-occupation-skill": {
+            "name": "Knowledge linked twice",
+            "description": "Occupations, knowledges and skills, that have the same knowledge linked twice.",
+            "show": ["etms"],
+            "types": [
+                "occupation", "skill"
+            ],
+            "parameters": [
+                "uuid", "preflabel", "literalForm"
+            ],
+            "query": "{ select ?uuid ?skill (COUNT(?relation) as ?relations) WHERE { ?occupation a <change_the_type>; mu:uuid ?uuid; mu:isUnderCreation 'false'. ?skill a esco:Skill; esco:skillType <http://data.europa.eu/esco/skill-type/skill> .     { {  ?relation a esco:Relationship; esco:isRelationshipFor ?occupation; esco:refersConcept ?skill. } UNION { ?relation a esco:Relationship; esco:refersConcept ?occupation; esco:isRelationshipFor ?skill. } } } GROUP BY ?uuid ?skill HAVING(COUNT(?relation) > 1) } ?occupation a <http://data.europa.eu/esco/model#Occupation>; mu:uuid ?uuid; skosxl:prefLabel ?conceptlabel1. ?conceptlabel1 skosxl:literalForm ?preflabel. ?skill a esco:Skill; esco:skillType <http://data.europa.eu/esco/skill-type/knowledge> ;  skosxl:prefLabel ?conceptlabel. ?conceptlabel skosxl:literalForm ?literalForm. filter(lang(?literalForm) = 'en') filter(lang(?preflabel) = 'en')"
+        },
+        "isco-narrower-occupation-skill": {
+            "name": "ISCO-08 as narrower",
+            "description": "ISCO-08 concepts cannot be narrower to an occupation, knowledge or skill.",
+            "show": ["etms"],
+            "types": [
+                "occupation", "skill"
+            ],
+            "parameters": [
+                "uuid", "preflabel"
+            ],
+            "query": "?concept a <change_the_type>; mu:uuid ?uuid; skosxl:prefLabel ?conceptlabel. ?conceptlabel skosxl:literalForm ?preflabel. filter(lang(?preflabel) = 'en') ?iscoConcept a <http://www.w3.org/2004/02/skos/core#Concept>; skos:inScheme <http://data.europa.eu/esco/ConceptScheme/ISCO2008>; skos:broader ?concept.  ?concept mu:isUnderCreation 'false'."
+        },
+        "double_broaders": {
+            "name": "More than one broader",
+            "description": "Occupations, knowledges or skills with more than one broader.",
+            "show": ["etms"],
+            "types": [
+                "occupation", "skill"
+            ],
+            "parameters": [
+                "uuid", "preflabel"
+            ],
+            "query": "?concept a <change_the_type>; mu:uuid ?uuid; skosxl:prefLabel ?conceptlabel. ?conceptlabel skosxl:literalForm ?preflabel. filter(lang(?preflabel) = 'en') ?concept  skos:broader ?broaderconcept1, ?broaderconcept2. filter (?broaderconcept1 != ?broaderconcept2 )  ?concept mu:isUnderCreation 'false'."
+        },
+        "missing-broader-narrower-occupation-skill": {
+            "name": "Missing broader and narrower",
+            "description": "Skills, knowledges and occupations without a broader and a narrower.",
+            "show": ["etms"],
+            "types": [
+                "occupation", "skill"
+            ],
+            "parameters": [
+                "uuid", "preflabel"
+            ],
+            "query": "?concept a <change_the_type>; mu:uuid ?uuid; skosxl:prefLabel ?label . ?label skosxl:literalForm ?preflabel. filter(lang(?preflabel) = 'en') FILTER NOT EXISTS {?concept skos:broader ?narrower} FILTER NOT EXISTS {?broader skos:broader ?concept}  ?concept mu:isUnderCreation 'false'."
+        },
+        "missing-description-occupation-skill": {
+            "name": "Missing description",
+            "description": "Skills, knowledges and occupations without a description.",
+            "show": ["etms"],
+            "types": [
+                "occupation", "skill"
+            ],
+            "parameters": [
+                "uuid", "preflabel"
+            ],
+            "query": "?concept a <change_the_type>; mu:uuid ?uuid; skosxl:prefLabel ?label . ?label skosxl:literalForm ?preflabel. filter(lang(?preflabel) = 'en') FILTER NOT EXISTS {?concept <http://purl.org/dc/terms/description> ?description.     filter(lang(?description) = 'en' && strlen(?description) > 0) }  ?concept mu:isUnderCreation 'false'."
+        },
+        "occupation-prefterm-sm": {
+            "name": "Pref term is male, it  must be standard male",
+            "description": "For occupations: If a preferred term is male, it must also be standard male. Preferred terms must include standard male.",
+            "show": ["etms"],
+            "types": [
+                "occupation"
+            ],
+            "parameters": [
+                "uuid", "preflabel"
+            ],
+            "query": "?concept a <change_the_type>; mu:uuid ?uuid ; skosxl:prefLabel ?label . ?label skosxl:literalForm ?preflabel . filter(lang(?preflabel) = 'en') FILTER NOT EXISTS { ?label esco:hasLabelRole <http://data.europa.eu/esco/label-role/standard-male> }  ?label esco:hasLabelRole <http://data.europa.eu/esco/label-role/male> . ?concept mu:isUnderCreation 'false'."
+        },
+        "occupation-prefterm-sf": {
+            "name": "Pref term is female, it must be standard female",
+            "description": "For occupations: If a preferred term is female, it must also be standard female. Preferred terms must include standard female.",
+            "show": ["etms"],
+            "types": [
+                "occupation"
+            ],
+            "parameters": [
+                "uuid", "preflabel"
+            ],
+            "query": "?concept a <change_the_type>; mu:uuid ?uuid ; skosxl:prefLabel ?label . ?label skosxl:literalForm ?preflabel . filter(lang(?preflabel) = 'en') FILTER NOT EXISTS { ?label esco:hasLabelRole <http://data.europa.eu/esco/label-role/standard-female> }  ?label esco:hasLabelRole <http://data.europa.eu/esco/label-role/female> . ?concept mu:isUnderCreation 'false'."
+        },
+        "occupation-term-sm": {
+            "name": "Term is standard male, it  must be male",
+            "description": "For occupations: If a term is standard male, it must also be male. Preferred terms must include standard male.",
+            "show": ["etms"],
+            "types": [
+                "occupation"
+            ],
+            "parameters": [
+                "uuid", "preflabel", "literalForm"
+            ],
+            "query": "?concept a <change_the_type>; mu:uuid ?uuid ; (skosxl:prefLabel|skosxl:altLabel) ?label ; skosxl:prefLabel ?conceptlabel. ?conceptlabel skosxl:literalForm ?preflabel. ?label skosxl:literalForm ?literalForm . filter(lang(?preflabel) = 'en') filter(lang(?literalForm) = 'en') ?label esco:hasLabelRole <http://data.europa.eu/esco/label-role/standard-male> . FILTER NOT EXISTS { ?label esco:hasLabelRole <http://data.europa.eu/esco/label-role/male> }   ?concept mu:isUnderCreation 'false'."
+        },
+        "occupation-term-sf": {
+            "name": "Term is standard female, it must be female",
+            "description": "For occupations: If a term is standard female, it must also be female. Preferred terms must include standard female.",
+            "show": ["etms"],
+            "types": [
+                "occupation"
+            ],
+            "parameters": [
+                "uuid", "preflabel", "literalForm"
+            ],
+            "query": "?concept a <change_the_type>; mu:uuid ?uuid ; (skosxl:prefLabel|skosxl:altLabel) ?label ; skosxl:prefLabel ?conceptlabel. ?conceptlabel skosxl:literalForm ?preflabel. ?label skosxl:literalForm ?literalForm . filter(lang(?preflabel) = 'en') filter(lang(?literalForm) = 'en') ?label esco:hasLabelRole <http://data.europa.eu/esco/label-role/standard-female> . FILTER NOT EXISTS { ?label esco:hasLabelRole <http://data.europa.eu/esco/label-role/female> }   ?concept mu:isUnderCreation 'false'."
+        },
+        "occupation-term-no-sm": {
+            "name": "Missing standard male",
+            "description": "Occupations without standard male. All occupations must include one standard male term.",
+            "show": ["etms"],
+            "types": [
+                "occupation"
+            ],
+            "parameters": [
+                "uuid", "preflabel"
+            ],
+            "query": "?concept a <change_the_type>; mu:uuid ?uuid ; skosxl:prefLabel ?conceptlabel. ?conceptlabel skosxl:literalForm ?preflabel. filter(lang(?preflabel) = 'en')  FILTER NOT EXISTS { ?concept (skosxl:prefLabel|skosxl:altLabel) ?label. ?label esco:hasLabelRole <http://data.europa.eu/esco/label-role/standard-male>; skosxl:literalForm ?literalForm . filter(lang(?literalForm) = 'en') }   ?concept mu:isUnderCreation 'false'."
+        },
+        "occupation-term-no-sf": {
+            "name": "Missing standard female",
+            "description": "Occupations without standard female. All occupations must include one standard female term.",
+            "show": ["etms"],
+            "types": [
+                "occupation"
+            ],
+            "parameters": [
+                "uuid", "preflabel"
+            ],
+            "query": "?concept a <change_the_type>; mu:uuid ?uuid ; skosxl:prefLabel ?conceptlabel. ?conceptlabel skosxl:literalForm ?preflabel. filter(lang(?preflabel) = 'en')  FILTER NOT EXISTS { ?concept (skosxl:prefLabel|skosxl:altLabel) ?label. ?label esco:hasLabelRole <http://data.europa.eu/esco/label-role/standard-female>; skosxl:literalForm ?literalForm . filter(lang(?literalForm) = 'en') }   ?concept mu:isUnderCreation 'false'."
+        },
+        "occupation-one-sm": {
+            "name": "Multiple standard male",
+            "description": "Every occupation must have at most one standard male term.",
+            "show": ["etms"],
+            "types": [
+                "occupation"
+            ],
+            "parameters": [
+                "uuid", "preflabel"
+            ],
+            "query": "?concept a <change_the_type> ; mu:uuid ?uuid ; (skosxl:prefLabel|skosxl:altLabel) ?label1  ; (skosxl:prefLabel|skosxl:altLabel) ?label2 ; skosxl:prefLabel ?conceptlabel. ?conceptlabel skosxl:literalForm ?preflabel. filter(lang(?preflabel) = 'en')  ?label1 esco:hasLabelRole ?role .  ?label2 esco:hasLabelRole ?role .  FILTER (?label1 != ?label2 && ?role IN (<http://data.europa.eu/esco/label-role/standard-male>)) ?concept mu:isUnderCreation 'false'."
+        },
+        "occupation-one-sf": {
+            "name": "Multiple standard female",
+            "description": "Every occupation must have at most one standard female term.",
+            "show": ["etms"],
+            "types": [
+                "occupation"
+            ],
+            "parameters": [
+                "uuid", "preflabel"
+            ],
+            "query": "?concept a <change_the_type> ; mu:uuid ?uuid ; (skosxl:prefLabel |skosxl:altLabel ) ?label1  ; (skosxl:prefLabel |skosxl:altLabel ) ?label2 ; skosxl:prefLabel ?conceptlabel. ?conceptlabel skosxl:literalForm ?preflabel. filter(lang(?preflabel) = 'en')  ?label1 esco:hasLabelRole ?role .  ?label2 esco:hasLabelRole ?role .  FILTER (?label1 != ?label2 && ?role IN (<http://data.europa.eu/esco/label-role/standard-female>))   ?concept mu:isUnderCreation 'false'."
+        },
+        "occupation-without-nace": {
+            "name": "Occupations without NACE Code",
+            "description": "Every occupation should have at least one NACE Code.",
+            "show": ["etms"],
+            "types": [
+                "occupation"
+            ],
+            "parameters": [
+                "uuid", "preflabel"
+            ],
+            "query": "?concept a <change_the_type>; mu:uuid ?uuid; skosxl:prefLabel ?conceptlabel. ?conceptlabel skosxl:literalForm ?preflabel. filter(lang(?preflabel) = 'en') FILTER NOT EXISTS {?concept esco:hasNACECode ?nace}  ?concept mu:isUnderCreation 'false'."
+        },
+        "skills-without-occupations": {
+            "name": "Skills and knowledges without occupations",
+            "description": "Skills and knowledges without occupations.",
+            "show": ["etms"],
+            "types": [
+                "skill"
+            ],
+            "parameters": [
+                "uuid", "preflabel"
+            ],
+            "query": "?concept a <change_the_type>; mu:uuid ?uuid; skosxl:prefLabel ?conceptlabel. ?conceptlabel skosxl:literalForm ?preflabel. filter(lang(?preflabel) = 'en') FILTER NOT EXISTS {?relation a esco:Relationship; ?hasConcept ?concept; ?hasOccupation ?occupation. ?occupation a esco:Occupation. }  ?concept mu:isUnderCreation 'false'."
+        }
+    }
+}

@@ -1,0 +1,4 @@
+<http://data.europa.eu/esco/concept-scheme/occupations> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#ConceptScheme> .
+<http://data.europa.eu/esco/concept-scheme/occupations> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://data.europa.eu/esco/model#ConceptScheme> .
+<http://data.europa.eu/esco/concept-scheme/occupations> <http://www.w3.org/2004/02/skos/core#prefLabel> "ESCO Occupations" .
+<http://data.europa.eu/esco/concept-scheme/occupations> <http://purl.org/dc/terms/description> "A taxonomy of the occupations in ESCO" .
