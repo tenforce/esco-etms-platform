@@ -1,0 +1,29 @@
+@prefix mu:	<http://mu.semte.ch/vocabularies/core/> .
+@prefix account:  <http://mu.semte.ch/vocabularies/account/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/>.
+@prefix trans: <http://translation.escoportal.eu/vocab/>.
+
+<http://test.tenforce.com/users/rootAccount> a foaf:OnlineAccount;
+    mu:uuid "48275f34-d4aa-11e5-ab30-625662870761";
+    foaf:accountName "admin";
+    account:status <http://mu.semte.ch/vocabularies/account/status/active>;
+    account:password "$2a$10$aAT9gvwuzygENSABtlZso.KD/LqtNy73FW8g1F0Rr42wBuLCmAn4a";
+    account:salt "B933A8C6 ".
+
+<http://test.tenforce.com/users/root> a foaf:Person ;
+    foaf:name "Admin User" ;
+    foaf:account <http://test.tenforce.com/users/rootAccount> ;
+    mu:uuid "1630d320-f616-4a59-8ae3-86acb8352cda".
+
+<http://test.tenforce.com/groups/EMPL_ESCOETMADM> a trans:EcasGroup ;
+    foaf:name "EMPL_ESCOETMADM";
+		mu:uuid "88e8a7aa-cb23-4b91-9077-fc470fa392ae";
+		foaf:member <http://test.tenforce.com/users/root>.
+
+<http://test.tenforce.com/groups/EMPL_ESCOETM> a trans:EcasGroup ;
+    foaf:name "EMPL_ESCOETM";
+		mu:uuid "88e8a7aa-cb23-4b91-9077-fc470fa392ad".
+
+<http://test.tenforce.com/groups/EMPL_ESCOETMVIS> a trans:EcasGroup ;
+    foaf:name "EMPL_ESCOETMVIS";
+		mu:uuid "88e8a7aa-cb23-4b91-9077-fc470fa392af".

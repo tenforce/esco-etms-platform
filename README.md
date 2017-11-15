@@ -12,4 +12,4 @@ git clone --recursive https://github.com/tenforce/esco-etms-platform.git
 docker-compose up
 ```
 
-browse to http://localhost:4567/
+browse to http://localhost:4567/ and log in with the user "admin" and password "testing1".

@@ -13,11 +13,18 @@
              "http://mu.semte.ch/application"))
   "standard graph for all sparql queries.")
 
+(defparameter sparql:*query-log-types* nil
+  "If truethy, queries will be logged to *error-output*")
+
 (defparameter *default-page-size*
   (handler-case
       (parse-integer (uiop:getenv "MU_DEFAULT_PAGE_SIZE"))
     (error () 20))
   "default amount of items in a single page of results.")
+
+(defparameter *include-count-in-paginated-responses* nil
+  "when non-nil, all paginated listings will contain the number
+   of responses in the result object's meta.")
 
 (defparameter *supply-cache-headers-p* nil
   "when non-nil, cache headers are supplied.  this works together with mu-cache.")
