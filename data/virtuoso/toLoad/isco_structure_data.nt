@@ -1,6 +1,6 @@
-<http://data.europa.eu/esco/concept-scheme/occupations/isco> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://data.europa.eu/esco/model#Structure> .
-<http://data.europa.eu/esco/concept-scheme/occupations/isco> <http://www.w3.org/2004/02/skos/core#prefLabel> "ISCO hierarchy" .
-<http://data.europa.eu/esco/concept-scheme/occupations/isco> <http://purl.org/dc/terms/description> "A taxonomy of the occupations in ESCO, organized in a ISCO hierarchy" .
-<http://data.europa.eu/esco/concept-scheme/occupations/isco> <http://data.europa.eu/esco/model#structureFor> <http://data.europa.eu/esco/concept-scheme/occupations> .
-<http://data.europa.eu/esco/concept-scheme/occupations/isco> <http://data.europa.eu/esco/model#codeList> <http://data.europa.eu/esco/concept-scheme/isco> .
-<http://data.europa.eu/esco/concept-scheme/occupations/isco> <http://data.europa.eu/esco/model#codedProperty> <http://www.w3.org/2004/02/skos/core#broader> .
+<http://data.europa.eu/esco/structure/isco> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://data.europa.eu/esco/model#Structure> .
+<http://data.europa.eu/esco/structure/isco> <http://www.w3.org/2004/02/skos/core#prefLabel> "ISCO hierarchy" .
+<http://data.europa.eu/esco/structure/isco> <http://purl.org/dc/terms/description> "A taxonomy of the occupations in ESCO, organized in a ISCO hierarchy" .
+<http://data.europa.eu/esco/structure/isco> <http://data.europa.eu/esco/model#structureFor> <http://data.europa.eu/esco/concept-scheme/occupations> .
+<http://data.europa.eu/esco/structure/isco> <http://data.europa.eu/esco/model#codeList> <http://data.europa.eu/esco/concept-scheme/isco> .
+<http://data.europa.eu/esco/structure/isco> <http://data.europa.eu/esco/model#codedProperty> <http://www.w3.org/2004/02/skos/core#broader> .
